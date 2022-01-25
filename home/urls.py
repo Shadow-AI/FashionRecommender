@@ -4,4 +4,5 @@ from home.views import *
 
 urlpatterns =[
     path('test/', Test.as_view(), name='test'),
+    path('image/', ImageUpload.as_view(), name='img-upload'),
 ]

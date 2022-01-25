@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form enctype="multipart/form-data" action="{% url 'img-upload' %}" method="post">
+    {% csrf_token %}
+    <input type="file" name="heh">
+    <button type="submit">Submit</button>
+</form>
+
+{% if recommend %}
+    {% for i in recommend %}
+        <img src="{{ i.image_link.image.url }}">
+    {% endfor %}
+{% endif %}
+
+
+</body>
+</html>
