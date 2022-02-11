@@ -4,9 +4,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from home.models import *
-@admin.register(ImageDB)
+@admin.register(ImageObject)
 class ImageDBAdmin(admin.ModelAdmin):
-    list_filter = ['colour', 'type']
+    list_filter = ['colour', 'main_category', 'sub_category']
     list_display = ['name', 'gender']
     fields = ('name', 'colour', 'type', 'image', 'gender', 'image_tag')
     readonly_fields = ('image_tag',)
@@ -18,7 +18,7 @@ class ImageDBAdmin(admin.ModelAdmin):
 
 
     class Meta:
-        model = ImageDB
+        model = ImageObject
 
 
 

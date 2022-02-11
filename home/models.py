@@ -15,17 +15,67 @@ CLOTH_TYPE = (
 )
 
 GENDER = (
-    ('Male', 'Male'),
-    ('Female', 'Female'),
+    ('Boys', 'Boys'),
+    ('Men', 'Men'),
+    ('Unisex', 'Unisex'),
+    ('Women', 'Women'),
+    ('Girls', 'Girls'),
+)
+
+USAGE = (
+    ('Formal', 'Formal'),
+    ('Smart Casual', 'Smart Casual'),
+    ('Sports', 'Sports'),
+    ('Party', 'Party'),
+    ('Home', 'Home'),
+    ('NA', 'NA'),
+    ('Ethnic', 'Ethnic'),
+    ('Casual', 'Casual'),
+    ('Travel', 'Travel'),
+    # ('', ''),
+)
+
+AGE_GROUP = (
+    # ('', ''),
+    ('Kids-Girls', 'Kids-Girls'),
+    ('Kids-Unisex', 'Kids-Unisex'),
+    ('Kids-Boys', 'Kids-Boys'),
+    ('Adults-Women', 'Adults-Women'),
+    ('Adults-Unisex', 'Adults-Unisex'),
+    ('Adults-Men', 'Adults-Men'),
+)
+
+SEASONS = (
+    #('', ''),
+    ('Fall', 'Fall'),
+    ('Summer', 'Summer'),
+    ('Winter', 'Winter'),
+    ('Spring', 'Spring'),
 )
 
 
-class ImageDB(models.Model):
-    name = models.CharField(max_length=200, null=True, blank=True)
+class ImageObject(models.Model):
+    name = models.CharField(max_length=200, null=True, blank=True)  # productDisplayName
     colour = models.CharField(max_length=50)
-    type = models.CharField(max_length=50, choices=CLOTH_TYPE)
+    # type = models.CharField(max_length=50, choices=CLOTH_TYPE)
     image = models.ImageField()
+    image_link_front = models.TextField(null=True, blank=True)
+    image_link_back = models.TextField(null=True, blank=True)
+
+    is_custom = models.BooleanField(verbose_name='Is the object uploaded by user')
+    # True: no link, limited options, will be saved as image
+
     gender = models.CharField(max_length=10, choices=GENDER, null=True, blank=True)
+    ageGroup = models.CharField(max_length=25, choices=AGE_GROUP, null=True, blank=True)
+
+    brand = models.CharField(max_length=100)
+    season = models.CharField(max_length=20, choices=SEASONS, null=True, blank=True)
+    usage = models.CharField(max_length=20, choices=USAGE, null=True, blank=True)
+
+    main_category = models.CharField(max_length=60, null=True, blank=True)
+    sub_category = models.CharField(max_length=60, null=True, blank=True)
+    article_category = models.CharField(max_length=60, null=True, blank=True)
+
     # todo think about use uploading image, for colour, type and gender
     # 1. accept from user
     # 2. profit
@@ -33,7 +83,7 @@ class ImageDB(models.Model):
     def save(self, *args, **kwargs):
         # comment this out if need name to be something diff, idk why tho (idk why name field there)
         self.name = self.image.name
-        super(ImageDB, self).save(*args, **kwargs)
+        super(ImageObject, self).save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
         fs.delete(self.image.name)
@@ -43,10 +93,15 @@ class ImageDB(models.Model):
         return f'{self.type} | {self.colour} | {self.name}'
 
 
+class Tag(models.Model):
+    image_link = models.ForeignKey(ImageObject, on_delete=models.CASCADE)
+    tag = models.CharField(max_length=50)
+
+
 class FeatureVector(models.Model):
     # vector is stored in bytes object via pickle. use loads to load it as array
     vector = models.BinaryField()
-    image_link = models.ForeignKey(ImageDB, on_delete=models.CASCADE)
+    image_link = models.ForeignKey(ImageObject, on_delete=models.CASCADE)
     array_datatype = models.CharField(max_length=10, default='float32')
 
     def __str__(self):
@@ -54,8 +109,8 @@ class FeatureVector(models.Model):
 
 
 class SimilarityMatrix(models.Model):
-    column_item = models.ForeignKey(ImageDB, on_delete=models.CASCADE, related_name='column_item')
-    row_item = models.ForeignKey(ImageDB, on_delete=models.CASCADE, related_name='row_item')
+    column_item = models.ForeignKey(ImageObject, on_delete=models.CASCADE, related_name='column_item')
+    row_item = models.ForeignKey(ImageObject, on_delete=models.CASCADE, related_name='row_item')
     value = models.FloatField()
 
     def __str__(self):
