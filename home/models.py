@@ -46,7 +46,7 @@ AGE_GROUP = (
 )
 
 SEASONS = (
-    #('', ''),
+    # ('', ''),
     ('Fall', 'Fall'),
     ('Summer', 'Summer'),
     ('Winter', 'Winter'),
@@ -55,18 +55,21 @@ SEASONS = (
 
 
 class ImageObject(models.Model):
-    name = models.CharField(max_length=200, null=True, blank=True)  # productDisplayName
+    name = models.TextField(null=True, blank=True)  # productDisplayName
     colour = models.CharField(max_length=50)
     # type = models.CharField(max_length=50, choices=CLOTH_TYPE)
-    image = models.ImageField()
+    image = models.ImageField(blank=True, null=True)
     image_link_front = models.TextField(null=True, blank=True)
     image_link_back = models.TextField(null=True, blank=True)
+    image_link_right = models.TextField(null=True, blank=True)
+    image_link_left = models.TextField(null=True, blank=True)
+    image_buy_link = models.TextField(null=True, blank=True)  # landingPageUrl
 
-    is_custom = models.BooleanField(verbose_name='Is the object uploaded by user')
+    is_custom = models.BooleanField(verbose_name='Object uploaded by user')
     # True: no link, limited options, will be saved as image
 
     gender = models.CharField(max_length=10, choices=GENDER, null=True, blank=True)
-    ageGroup = models.CharField(max_length=25, choices=AGE_GROUP, null=True, blank=True)
+    age_group = models.CharField(max_length=25, choices=AGE_GROUP, null=True, blank=True)
 
     brand = models.CharField(max_length=100)
     season = models.CharField(max_length=20, choices=SEASONS, null=True, blank=True)
@@ -82,7 +85,7 @@ class ImageObject(models.Model):
 
     def save(self, *args, **kwargs):
         # comment this out if need name to be something diff, idk why tho (idk why name field there)
-        self.name = self.image.name
+        # self.name = self.image.name
         super(ImageObject, self).save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
@@ -90,7 +93,7 @@ class ImageObject(models.Model):
         super().delete()
 
     def __str__(self):
-        return f'{self.type} | {self.colour} | {self.name}'
+        return f'{self.article_category} | {self.colour} | {self.name}'
 
 
 class Tag(models.Model):

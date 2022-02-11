@@ -1,3 +1,4 @@
+import json
 import os
 import glob
 from io import BytesIO
@@ -55,28 +56,72 @@ def calculate_similarity(vector1, vector2):
 
 class Test(View):
     def get(self, request):
-        img_path = os.path.join(settings.PROJECT_ROOT, '../dataset')
-        for name in glob.glob(f'{img_path}/*'):
+
+        dataset_path = os.path.join(settings.PROJECT_ROOT, '../dataset')
+        image_path = os.path.join(settings.PROJECT_ROOT, '../dataset/images')
+        styles_path = os.path.join(settings.PROJECT_ROOT, '../dataset/styles')
+
+        for name in glob.glob(f'{styles_path}/*'):
             print(name)
-            for filename in glob.glob(f'{name}/*'):
-                folder_name = name.split('\\')[-1]
-                colour = folder_name.split('_')[0]
-                type = folder_name.split('_')[-1]
+            # todo you were working here; need to load images to dataset. dont need image_path ig
+            with open(name, 'r') as fp:
 
-                image_name = filename.split('\\')[-1]
-                print(image_name)
+                item_json = json.load(fp)
 
-                image = PIL.Image.open(filename)
+                buy_link = f"myntra.com/{item_json['data']['landingPageUrl']}"
+
+                pic_front = item_json['data']['styleImages']['front']['imageURL']
+                if item_json['data']['styleImages'].get('back'):
+                    pic_back = item_json['data']['styleImages']['back'].get('imageURL')
+                else:
+                    pic_back = None
+                if item_json['data']['styleImages'].get('left'):
+                    pic_left = item_json['data']['styleImages']['left'].get('imageURL')
+                else:
+                    pic_left = None
+                if item_json['data']['styleImages'].get('right'):
+                    pic_right = item_json['data']['styleImages']['right'].get('imageURL')
+                else:
+                    pic_right = None
+
+                item_name = item_json['data']['productDisplayName']
+                item_colour = item_json['data']['baseColour']
+                item_gender = item_json['data']['gender']
+                item_agegrp = item_json['data']['ageGroup']
+                item_brand = item_json['data']['brandName']
+                item_usage = item_json['data']['usage']
+                item_season = item_json['data']['season']
+                # todo do you want to put display categories too?
+
+                item_main = item_json['data']['masterCategory']['typeName']
+                item_sub = item_json['data']['subCategory']['typeName']
+                item_article = item_json['data']['articleType']['typeName']
+
+                image_name = name.split('\\')[-1].split('.')[0]
+                # name is actually the full path to the json
+                image = PIL.Image.open(f'{image_path}/{image_name}.jpg')
                 fv = get_feature_vector(image)
 
                 buff = BytesIO()
                 image.save(buff, format='jpeg')
 
-                i = ImageDB(
-                    colour=colour,
-                    type=type,
-                    image=ContentFile(buff.getvalue(), name=image_name),
-                    gender='Female',
+                i = ImageObject(
+                    name=item_name,
+                    colour=item_colour,
+                    image_link_front=pic_front,
+                    image_link_back=pic_back,
+                    image_link_left=pic_left,
+                    image_link_right=pic_right,
+                    image_buy_link=buy_link,
+                    is_custom=False,
+                    gender=item_gender,
+                    age_group=item_agegrp,
+                    brand=item_brand,
+                    season=item_season,
+                    usage=item_usage,
+                    main_category=item_main,
+                    sub_category=item_sub,
+                    article_category=item_article,
                 )
                 i.save()
 
@@ -119,9 +164,10 @@ class ImageUpload(View):
         return render(request, 'img upload.html')
 
     def post(self, request):
+        # todo this needs to be revamped
         img = request.FILES.get('heh')
         print(img)
-        i = ImageDB(
+        i = ImageObject(
             colour='green',
             type='shorts',
             image=img,
@@ -141,7 +187,7 @@ class ImageUpload(View):
                 fv,
                 np.frombuffer(j.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
             )
-            s=SimilarityMatrix(
+            s = SimilarityMatrix(
                 column_item=i,
                 row_item=j.image_link,
                 value=sim,
