@@ -161,17 +161,28 @@ class Test(View):
 
 class ImageUpload(View):
     def get(self, request):
-        return render(request, 'img upload.html')
+        ctx = {
+            'USAGE': USAGE,
+            'SEASONS': SEASONS,
+            'AGE_GROUP': AGE_GROUP,
+            'GENDER': GENDER,
+        }
+        return render(request, 'img upload.html', context=ctx)
 
     def post(self, request):
         # todo this needs to be revamped
-        img = request.FILES.get('heh')
+        img = request.FILES.get('user-img')
+
         print(img)
         i = ImageObject(
-            colour='green',
-            type='shorts',
+            colour=request.POST.get('user-colour'),
             image=img,
-            gender='Female',
+            gender=request.POST.get('user-gender'),
+            is_custom=True,
+            age_group=request.POST.get('user-agegrp'),
+            brand=request.POST.get('user-brand'),
+            season=request.POST.get('user-season'),
+            usage=request.POST.get('user-usage'),
         )
         i.save()
         fv = get_feature_vector(PIL.Image.open(i.image))
@@ -193,10 +204,15 @@ class ImageUpload(View):
                 value=sim,
             )
             s.save()
-            if sim >= 0.5:
+            if sim >= 0.55:
                 best_fits.append(j)
 
-        ctx = dict()
-        ctx['recommend'] = best_fits
+        ctx = {
+            'USAGE': USAGE,
+            'SEASONS': SEASONS,
+            'AGE_GROUP': AGE_GROUP,
+            'GENDER': GENDER,
+            'recommend': best_fits,
+        }
         print(best_fits)
         return render(request, 'img upload.html', context=ctx)
