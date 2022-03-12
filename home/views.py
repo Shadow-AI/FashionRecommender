@@ -1,6 +1,7 @@
 import json
 import os
 import glob
+import time
 from io import BytesIO
 
 import PIL.Image
@@ -46,6 +47,7 @@ ARRAY_DATA_TYPE = 'float32'
 # these two functions are to generate feature vector and to calculate cosine similarity :)
 def get_feature_vector(img):
     img1 = img.resize((224, 224))
+    # img2 = tf.image.resize(img, (224, 224))
     feature_vector = model.predict(np.asarray(img1).reshape((1, 224, 224, 3)))
     return feature_vector
 
@@ -56,21 +58,29 @@ def calculate_similarity(vector1, vector2):
 
 class Test(View):
     def get(self, request):
+        print('hhe')
+        start = time.time()
 
         dataset_path = os.path.join(settings.PROJECT_ROOT, '../dataset')
         image_path = os.path.join(settings.PROJECT_ROOT, '../dataset/images')
         styles_path = os.path.join(settings.PROJECT_ROOT, '../dataset/styles')
 
-        for name in glob.glob(f'{styles_path}/*'):
-            print(name)
+        for iter_no, name in enumerate(glob.glob(f'{styles_path}/*')):
+            image_name = name.split('\\')[-1].split('.')[0]
             # todo you were working here; need to load images to dataset. dont need image_path ig
             with open(name, 'r') as fp:
 
-                item_json = json.load(fp)
+                try:
+                    item_json = json.load(fp)
+                except UnicodeDecodeError:
+                    continue
 
                 buy_link = f"myntra.com/{item_json['data']['landingPageUrl']}"
 
-                pic_front = item_json['data']['styleImages']['front']['imageURL']
+                if item_json['data']['styleImages'].get('front'):
+                    pic_front = item_json['data']['styleImages']['front']['imageURL']
+                else:
+                    pic_front = item_json['data']['styleImages']['default']['imageURL']
                 if item_json['data']['styleImages'].get('back'):
                     pic_back = item_json['data']['styleImages']['back'].get('imageURL')
                 else:
@@ -97,13 +107,12 @@ class Test(View):
                 item_sub = item_json['data']['subCategory']['typeName']
                 item_article = item_json['data']['articleType']['typeName']
 
-                image_name = name.split('\\')[-1].split('.')[0]
                 # name is actually the full path to the json
                 image = PIL.Image.open(f'{image_path}/{image_name}.jpg')
                 fv = get_feature_vector(image)
 
-                buff = BytesIO()
-                image.save(buff, format='jpeg')
+                # buff = BytesIO()
+                # image.save(buff, format='jpeg')
 
                 i = ImageObject(
                     name=item_name,
@@ -134,29 +143,34 @@ class Test(View):
                 # i is the current image item
                 # features is the featurevector object(current item, stored as fv in mem)
                 # j is each item iterated over, stored in FeatureVectors, including itself
-                if FeatureVector.objects.all():
-                    for j in FeatureVector.objects.all():
-                        similarity = calculate_similarity(
-                            fv,
-                            np.frombuffer(j.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
-                        )
+                # if FeatureVector.objects.all():
+                #     for j in FeatureVector.objects.all():
+                #         similarity = calculate_similarity(
+                #             fv,
+                #             np.frombuffer(j.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
+                #         )
+                #
+                #         s = SimilarityMatrix(
+                #             column_item=i,
+                #             row_item=j.image_link,
+                #             value=similarity,
+                #         )
+                #         s.save()
+                # else:
+                #     s = SimilarityMatrix(
+                #         column_item=i,
+                #         row_item=i,
+                #         value=1,
+                #     )
+                #     s.save()
 
-                        s = SimilarityMatrix(
-                            column_item=i,
-                            row_item=j.image_link,
-                            value=similarity,
-                        )
-                        s.save()
-                else:
-                    s = SimilarityMatrix(
-                        column_item=i,
-                        row_item=i,
-                        value=1,
-                    )
-                    s.save()
-                # break
+            os.remove(f'{image_path}/{image_name}.jpg')
+            os.remove(name)
 
-        return HttpResponse('okay')
+            if (iter_no + 1) % 500 == 0:
+                break
+
+        return HttpResponse(time.time() - start)
 
 
 class ImageUpload(View):
@@ -174,23 +188,24 @@ class ImageUpload(View):
         img = request.FILES.get('user-img')
 
         print(img)
-        i = ImageObject(
-            colour=request.POST.get('user-colour'),
-            image=img,
-            gender=request.POST.get('user-gender'),
-            is_custom=True,
-            age_group=request.POST.get('user-agegrp'),
-            brand=request.POST.get('user-brand'),
-            season=request.POST.get('user-season'),
-            usage=request.POST.get('user-usage'),
-        )
-        i.save()
-        fv = get_feature_vector(PIL.Image.open(i.image))
-        f = FeatureVector(
-            vector=fv.tostring(),
-            image_link=i,
-        )
-        f.save()
+        start = time.time()
+        # i = ImageObject(
+        #     colour=request.POST.get('user-colour'),
+        #     image=img,
+        #     gender=request.POST.get('user-gender'),
+        #     is_custom=True,
+        #     age_group=request.POST.get('user-agegrp'),
+        #     brand=request.POST.get('user-brand'),
+        #     season=request.POST.get('user-season'),
+        #     usage=request.POST.get('user-usage'),
+        # )
+        # i.save()
+        fv = get_feature_vector(PIL.Image.open(img))
+        # f = FeatureVector(
+        #     vector=fv.tostring(),
+        #     image_link=i,
+        # )
+        # f.save()
 
         best_fits = list()
         for j in FeatureVector.objects.all():
@@ -198,13 +213,13 @@ class ImageUpload(View):
                 fv,
                 np.frombuffer(j.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
             )
-            s = SimilarityMatrix(
-                column_item=i,
-                row_item=j.image_link,
-                value=sim,
-            )
-            s.save()
-            if sim >= 0.55:
+            # s = SimilarityMatrix(
+            #     column_item=i,
+            #     row_item=j.image_link,
+            #     value=sim,
+            # )
+            # s.save()
+            if sim >= 0.75:
                 best_fits.append(j)
 
         ctx = {
@@ -214,5 +229,6 @@ class ImageUpload(View):
             'GENDER': GENDER,
             'recommend': best_fits,
         }
-        print(best_fits)
+        # print(best_fits)
+        print(time.time() - start)
         return render(request, 'img upload.html', context=ctx)

@@ -49,11 +49,11 @@
     {% for i in recommend %}
         <div>
         {% if not i.image_link.is_custom %}
-            <img src="{{ i.image_link.image_buy_link }}">
-            <img src="{{ i.image_link.image_link_back }}">
-            <img src="{{ i.image_link.image_link_front }}">
-            <img src="{{ i.image_link.image_link_left }}">
-            <img src="{{ i.image_link.image_link_right }}">
+            <img src="{{ i.image_link.image_buy_link }}" height="500px">
+            <img src="{{ i.image_link.image_link_back }}" height="500px">
+            <img src="{{ i.image_link.image_link_front }}" height="500px">
+            <img src="{{ i.image_link.image_link_left }}" height="500px">
+            <img src="{{ i.image_link.image_link_right }}" height="500px">
             {{ i.image_link.gender | first }}<br>
             {{ i.image_link.age_group }}<br>
             {{ i.image_link.brand }}<br>
