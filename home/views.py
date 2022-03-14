@@ -232,3 +232,7 @@ class ImageUpload(View):
         # print(best_fits)
         print(time.time() - start)
         return render(request, 'img upload.html', context=ctx)
+
+class XYZ(View):
+    def get(self, request):
+        return render(request, 'base.html')
