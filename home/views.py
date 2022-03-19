@@ -66,6 +66,7 @@ class Test(View):
         styles_path = os.path.join(settings.PROJECT_ROOT, '../dataset/styles')
 
         for iter_no, name in enumerate(glob.glob(f'{styles_path}/*')):
+
             image_name = name.split('\\')[-1].split('.')[0]
             # todo you were working here; need to load images to dataset. dont need image_path ig
             with open(name, 'r') as fp:
@@ -73,6 +74,11 @@ class Test(View):
                 try:
                     item_json = json.load(fp)
                 except UnicodeDecodeError:
+                    continue
+
+                m = f"myntra.com/{item_json['data']['landingPageUrl']}"
+
+                if ImageObject.objects.filter(image_buy_link__iexact=m):
                     continue
 
                 buy_link = f"myntra.com/{item_json['data']['landingPageUrl']}"
@@ -164,10 +170,10 @@ class Test(View):
                 #     )
                 #     s.save()
 
-            os.remove(f'{image_path}/{image_name}.jpg')
-            os.remove(name)
+            # os.remove(f'{image_path}/{image_name}.jpg')
+            # os.remove(name)
 
-            # if (iter_no + 1) % 500 == 0:
+            # if (iter_no + 1) % 7 == 0:
             #     break
 
         return HttpResponse(time.time() - start)
