@@ -329,6 +329,10 @@ img {
     line-height: 49px;
 }
 
+.karl-btn.upload{
+    background-color: lightcoral
+}
+
 .karl-btn:hover,
 .karl-btn:focus {
     font-weight: 700;
@@ -1396,7 +1400,7 @@ img {
     position: absolute;
     right: 0;
     text-transform: uppercase;
-    top: 0;
+    bottom: 0;
     -webkit-transition-duration: 500ms;
     transition-duration: 500ms;
     padding: 0 30px;

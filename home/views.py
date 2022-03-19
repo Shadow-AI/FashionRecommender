@@ -167,8 +167,8 @@ class Test(View):
             os.remove(f'{image_path}/{image_name}.jpg')
             os.remove(name)
 
-            if (iter_no + 1) % 500 == 0:
-                break
+            # if (iter_no + 1) % 500 == 0:
+            #     break
 
         return HttpResponse(time.time() - start)
 
@@ -235,4 +235,83 @@ class ImageUpload(View):
 
 class XYZ(View):
     def get(self, request):
-        return render(request, 'base.html')
+        p = int(request.GET.get('i'))
+        if p == 1:
+            return render(request, 'base.html')
+        elif p == 2:
+            return render(request, 'cart.html')
+        elif p == 3:
+            return render(request, 'checkout.html')
+        elif p == 4:
+            return render(request, 'index.html')
+        elif p == 5:
+            return render(request, 'product-details.html')
+        elif p == 6:
+            return render(request, 'shop.html')
+
+        # todo checkout X, cart -> wishlist,
+        # todo designer bags/sale -> kids wagera ad
+
+# actual web code begins here:
+
+class Index(View):
+    def get(self, request):
+        ctx = dict()
+        return render(request, 'index.html', context=ctx)
+
+class DisplayRecommendation(View):
+    def get(self, request):
+        ctx = dict()
+
+        return render(request, 'shop.html', context=ctx)
+
+    def post(self, request):
+        start = time.time()
+        img = request.FILES.get('rec-img')
+        fv = get_feature_vector(PIL.Image.open(img))
+        best_fits = list()
+        usage = set()
+        season = set()
+        gender = set()
+        main_category = set()
+        colour = set()
+        best_fits = dict()
+        for i in FeatureVector.objects.all():
+            sim = calculate_similarity(
+                fv,
+                np.frombuffer(i.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
+            )
+            if sim >= 0.75:
+                colour.add(i.image_link.colour)
+                main_category.add(i.image_link.main_category)
+                gender.add(i.image_link.gender)
+                season.add(i.image_link.season)
+                usage.add(i.image_link.usage)
+                t = list()
+                if i.image_link.image_link_front:
+                    t.append(i.image_link.image_link_front)
+                if i.image_link.image_link_back:
+                    t.append(i.image_link.image_link_back)
+                if i.image_link.image_link_left:
+                    t.append(i.image_link.image_link_left)
+                if i.image_link.image_link_right:
+                    t.append(i.image_link.image_link_right)
+                best_fits[i] = t
+
+
+
+# todo send few top results only not all
+# best fits is a dict with key as the actual item(fv) and the value as the images associated
+
+        ctx = {
+            'recommend': best_fits,
+            'total time': time.time() - start,
+            'colour': colour,
+            'main_category': main_category,
+            'gender': gender,
+            'season': season,
+            'usage': usage,
+        }
+
+        return render(request, 'shop.html', context=ctx)
+
