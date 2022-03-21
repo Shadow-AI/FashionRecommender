@@ -15,16 +15,19 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import re_path
 from django.urls import path, include
+from django.contrib.auth import views as auth_views, logout
 
 from FashionRecommender import settings
+from home import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('home.urls'))
+    path('', include('home.urls')),
+    path('blogs/', include('blog.urls')),
+    path('', include('social_django.urls', namespace='social')),
+    path('logout/', views.logoutredirect, name='logout'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-print('hhegahageqvavea')
-print(urlpatterns)

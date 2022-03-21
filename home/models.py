@@ -1,6 +1,9 @@
+
 from django.core.files.storage import FileSystemStorage
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.html import escape
+
 
 # Create your models here.
 
@@ -96,11 +99,6 @@ class ImageObject(models.Model):
         return f'{self.article_category} | {self.colour} | {self.name}'
 
 
-class Tag(models.Model):
-    image_link = models.ForeignKey(ImageObject, on_delete=models.CASCADE)
-    tag = models.CharField(max_length=50)
-
-
 class FeatureVector(models.Model):
     # vector is stored in bytes object via pickle. use loads to load it as array
     vector = models.BinaryField()
@@ -120,3 +118,28 @@ class SimilarityMatrix(models.Model):
         col_name = self.column_item
         row_name = self.row_item
         return f'{self.column_item} X {self.row_item}'
+
+class Wishlist(models.Model):
+    item = models.ForeignKey(ImageObject, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+class Review(models.Model):
+    review = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    review_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        if len(self.review) > 20:
+            return self.review[:20] + '...'
+        else:
+            return self.review
+
+class UserAvatarSocial(models.Model):
+    social_pfp = models.TextField()
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.get_full_name()

@@ -5,12 +5,15 @@ import time
 from io import BytesIO
 
 import PIL.Image
+from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from PIL import Image
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
+from django.urls import reverse
 from django.views import View
 
 import pandas as pd
@@ -239,6 +242,7 @@ class ImageUpload(View):
         print(time.time() - start)
         return render(request, 'img upload.html', context=ctx)
 
+
 class XYZ(View):
     def get(self, request):
         p = int(request.GET.get('i'))
@@ -258,12 +262,16 @@ class XYZ(View):
         # todo checkout X, cart -> wishlist,
         # todo designer bags/sale -> kids wagera ad
 
+
 # actual web code begins here:
 
 class Index(View):
     def get(self, request):
+        r = Review.objects.order_by('-review_date')[:5]
         ctx = dict()
+        ctx['reviews'] = r
         return render(request, 'index.html', context=ctx)
+
 
 class DisplayRecommendation(View):
     def get(self, request):
@@ -287,7 +295,7 @@ class DisplayRecommendation(View):
                 fv,
                 np.frombuffer(i.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
             )
-            if sim >= 0.75:
+            if sim >= 0.8:
                 colour.add(i.image_link.colour)
                 main_category.add(i.image_link.main_category)
                 gender.add(i.image_link.gender)
@@ -304,14 +312,12 @@ class DisplayRecommendation(View):
                     t.append(i.image_link.image_link_right)
                 best_fits[i] = t
 
-
-
-# todo send few top results only not all
-# best fits is a dict with key as the actual item(fv) and the value as the images associated
+        # todo send few top results only not all
+        # best fits is a dict with key as the actual item(fv) and the value as the images associated
 
         ctx = {
             'recommend': best_fits,
-            'total time': time.time() - start,
+            'total_time': time.time() - start,
             'colour': colour,
             'main_category': main_category,
             'gender': gender,
@@ -321,3 +327,47 @@ class DisplayRecommendation(View):
 
         return render(request, 'shop.html', context=ctx)
 
+
+def logoutredirect(request):
+    # faltu ka jugad because django 4.0 is gae
+    logout(request)
+    return redirect('/')
+
+
+class UploadReview(LoginRequiredMixin, View):
+    def post(self, request):
+        rev = request.POST.get('review-text')
+        r = Review(
+            review=rev,
+            user=request.user,
+        )
+        r.save()
+        return redirect(reverse('home'))
+
+
+class Wish(LoginRequiredMixin, View):
+    def get(self, request, pk, is_add):
+        w = Wishlist.objects.filter(user=request.user)
+        ctx = {
+            'wishlist': w,
+        }
+        return render(request, 'cart.html', context=ctx)
+
+    def post(self, request, pk, is_add):
+        # three in one function:
+        # 1. if pk then its delete single item
+        # 2. if no pk then clear entire user wishlist
+        # 3. if pk and is_add then add to wishlist
+        if pk and not is_add == 1:
+            w = Wishlist.objects.filter(pk=pk)
+            w.delete()
+        elif pk == 0 and is_add == 0:
+            print('ami')
+            w = Wishlist.objects.filter(user=request.user)
+            w.delete()
+        elif pk == 0 and is_add == 1:
+            i = ImageObject.objects.filter(pk=pk)[0]
+            w = Wishlist(user=request.user, item=i)
+            w.save()
+        # todo remove url overloading and j use input hidden ig - ye nai chal rah
+        return redirect(reverse('wish', args=[0, 0]))

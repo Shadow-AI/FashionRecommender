@@ -19,6 +19,7 @@
                     <thead>
                     <tr>
                         <th>Image</th>
+                        <th>Size</th>
                         <th>Upload</th>
                     </tr>
                     </thead>
@@ -27,13 +28,17 @@
 
                     <tr>
                         <td class="cart_product_img d-flex align-items-center">
-                            <a href="#"><img src="{% static 'img/product-img/product-9.jpg' %}" alt="Product"></a>
-                            <h6>Yellow Cocktail Dress</h6>
+                            <a href=""><img src="" id="imgdisplay"></a>
+                            <h6 id="imgdisplaytext"></h6>
+
+                        </td>
+                        <td>
+                            <p id="imgdisplaysize"></p>
                         </td>
                         <td class="total_price">
                             <form action="#" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
-                                <input type="file" accept="image/jpeg" name="rec-img">
+                                <input type="file" accept="image/jpeg" name="rec-img" id="image">
                                 <button type="submit" class="btn karl-btn upload">Upload</button>
                             </form>
                         </td>
@@ -47,10 +52,13 @@
     </div>
 
     {% if recommend %}
+
         <section class="shop_grid_area section_padding_100">
             <div class="container">
                 <div class="row">
+
                     <div class="col-12 col-md-4 col-lg-3">
+
                         <div class="shop_sidebar_area">
 
                             <div class="widget catagory mb-50">
@@ -61,7 +69,7 @@
                                         {% for i in gender %}
 
                                             <label>
-                                                <input type="checkbox" id="filter-{{ i }}" value="on">
+                                                <input type="checkbox" checked id="filter-{{ i }}" value="on">
                                                 {{ i }}
                                             </label>
                                         {% endfor %}
@@ -69,7 +77,7 @@
                                         {% for i in season %}
 
                                             <label>
-                                                <input type="checkbox" id="filter-{{ i }}">
+                                                <input type="checkbox" checked id="filter-{{ i }}">
                                                 {{ i }}
                                             </label>
                                         {% endfor %}
@@ -77,7 +85,7 @@
                                         {% for i in main_category %}
 
                                             <label>
-                                                <input type="checkbox" id="filter-{{ i }}">
+                                                <input type="checkbox" checked id="filter-{{ i }}">
                                                 {{ i }}
                                             </label>
                                         {% endfor %}
@@ -85,7 +93,7 @@
                                         {% for i in usage %}
 
                                             <label>
-                                                <input type="checkbox" id="filter-{{ i }}">
+                                                <input type="checkbox" checked id="filter-{{ i }}">
                                                 {{ i }}
                                             </label>
                                         {% endfor %}
@@ -116,7 +124,7 @@
                                 <div class="widget-desc d-flex flex-column">
                                     {% for i in colour %}
                                         <label>
-                                            <input type="checkbox" id="filter-{{ i }}">
+                                            <input type="checkbox" checked id="filter-{{ i }}">
                                             {{ i }}
                                         </label>
                                     {% endfor %}
@@ -142,12 +150,14 @@
                     </div>
 
                     <div class="col-12 col-md-8 col-lg-9">
+                    <h6 style="font-size: 8px">{{ recommend | length }} results in {{ total_time }} seconds with 85%+ similar results</h6>
                         <div class="shop_grid_product_area">
                             <div class="row">
 
                                 <!-- Single gallery Item -->
                                 {% for k,v in recommend.items %}
-                                    <div class="col-12 col-sm-6 col-lg-4 single_gallery_item wow fadeInUpBig"
+                                    <div class="col-12 col-sm-6 col-lg-4 single_gallery_item wow fadeInUpBig
+                                    filter-{{ k.image_link.usage }} filter-{{ k.image_link.season }} filter-{{ k.image_link.colour }} filter-{{ k.image_link.gender }} filter-{{ k.image_link.main_category }}"
                                          data-wow-delay="0.2s">
                                         <!-- Product Image -->
                                         <div class="product-img">
@@ -182,7 +192,10 @@
                                             <p>{{ k.image_link.season }} wear</p>
                                             <p>{{ k.image_link.usage }}</p>
                                             <!-- Add to Cart -->
-                                            <a href="#" class="add-to-cart-btn">ADD TO WISHLIST</a>
+                                            <form method="post" action="{% url 'wish' k.image_link.id 1 %}">
+                                                {% csrf_token %}
+                                            <button type="submit" class="add-to-cart-btn">ADD TO WISHLIST</button>
+                                                </form>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -196,6 +209,61 @@
             </div>
         </section>
     {% endif %}
+
+    <script src="{% static 'js/jquery/jquery-2.2.4.min.js' %}"></script>
+    <script type="text/javascript">
+    //this is the filter script
+    function filter(){
+        var uncheck = $("input[type='checkbox']:not(:checked)");
+        var check = $("input[type='checkbox']:checked");
+
+        for(let i = 0; i < check.length; i++){
+            $("."+check[i].id).css({
+                "display": "block",
+            });
+        }
+
+        for(let i = 0; i < uncheck.length; i++){
+            $("."+uncheck[i].id).css({
+                "display": "none",
+            });
+        }
+    }
+    $( "input[type=checkbox]" ).on( "click", filter );
+    </script>
+    <script>
+    function readURL(input) {
+    if (input.files && input.files[0]) {
+        console.log(input.files)
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#imgdisplay').attr('src', e.target.result);
+            $("#imgdisplaytext").text(input.files[0].name);
+            $("#imgdisplaysize").text(Math.round(parseInt(input.files[0].size)/1024) + " kB");
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+$("#image").change(function(){
+    readURL(this);
+});
+
+$("document").ready(()=>{
+    if($("#imgdisplay").attr('src')===""){
+        $("#imgdisplay").css({
+            visibility: hidden,
+        });
+    }
+    else{
+        $("#imgdisplay").css({
+            visibility: visible,
+        });
+    }
+});
+    </script>
 
 
 {% endblock %}

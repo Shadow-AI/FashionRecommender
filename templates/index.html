@@ -19,7 +19,7 @@
                             <div class="col-12">
                                 <div class="welcome_slide_text">
                                     <h2 data-animation="fadeInUp" data-delay="500ms" data-duration="500ms">Fashion Trends</h2>
-                                    <a href="#" class="btn karl-btn" data-animation="fadeInUp" data-delay="1s" data-duration="500ms">Get Recommendations</a>
+                                    <a href="{% url 'display-rec' %}" class="btn karl-btn" data-animation="fadeInUp" data-delay="1s" data-duration="500ms">Get Recommendations</a>
                                 </div>
                             </div>
                         </div>
@@ -34,7 +34,7 @@
                                 <div class="welcome_slide_text">
 
                                     <h2 data-animation="bounceInDown" data-delay="500ms" data-duration="500ms">Women Fashion</h2>
-                                    <a href="#" class="btn karl-btn" data-animation="fadeInRightBig" data-delay="1s" data-duration="500ms">Get Recommendations</a>
+                                    <a href="{% url 'display-rec' %}" class="btn karl-btn" data-animation="fadeInRightBig" data-delay="1s" data-duration="500ms">Get Recommendations</a>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@
                                 <div class="welcome_slide_text">
 
                                     <h2 data-animation="bounceInDown" data-delay="500ms" data-duration="500ms">Men Fashion</h2>
-                                    <a href="#" class="btn karl-btn" data-animation="fadeInRightBig" data-delay="1s" data-duration="500ms">Get Recommendations</a>
+                                    <a href="{% url 'display-rec' %}" class="btn karl-btn" data-animation="fadeInRightBig" data-delay="1s" data-duration="500ms">Get Recommendations</a>
                                 </div>
                             </div>
                         </div>
@@ -280,52 +280,24 @@
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-8">
                         <div class="karl-testimonials-slides owl-carousel">
+                            {% for i in reviews %}
 
                             <!-- Single Testimonial Area -->
                             <div class="single-testimonial-area text-center">
                                 <span class="quote">"</span>
-                                <h6>Nunc pulvinar molestie sem id blandit. Nunc venenatis interdum mollis. Aliquam finibus nulla quam, a iaculis justo finibus non. Suspendisse in fermentum nunc.Nunc pulvinar molestie sem id blandit. Nunc venenatis interdum mollis. </h6>
+                                <h6>{{ i.review }}</h6>
                                 <div class="testimonial-info d-flex align-items-center justify-content-center">
                                     <div class="tes-thumbnail">
-                                        <img src="{% static 'img/bg-img/tes-1.jpg' %}" alt="">
+                                        <img src="{{i.user.useravatarsocial.social_pfp}}" alt="">
                                     </div>
                                     <div class="testi-data">
-                                        <p>Michelle Williams</p>
-                                        <span>Client, Los Angeles</span>
+                                        <p>{% if not i.user.first_name %}Anonymous User {% else %}{{ i.user.first_name }} {{ i.user.last_name }}{% endif %}</p>
+                                        <span>Featured Client</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Single Testimonial Area -->
-                            <div class="single-testimonial-area text-center">
-                                <span class="quote">"</span>
-                                <h6>Nunc pulvinar molestie sem id blandit. Nunc venenatis interdum mollis. Aliquam finibus nulla quam, a iaculis justo finibus non. Suspendisse in fermentum nunc.Nunc pulvinar molestie sem id blandit. Nunc venenatis interdum mollis. </h6>
-                                <div class="testimonial-info d-flex align-items-center justify-content-center">
-                                    <div class="tes-thumbnail">
-                                        <img src="{% static 'img/bg-img/tes-1.jpg' %}" alt="">
-                                    </div>
-                                    <div class="testi-data">
-                                        <p>Michelle Williams</p>
-                                        <span>Client, Los Angeles</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Single Testimonial Area -->
-                            <div class="single-testimonial-area text-center">
-                                <span class="quote">"</span>
-                                <h6>Nunc pulvinar molestie sem id blandit. Nunc venenatis interdum mollis. Aliquam finibus nulla quam, a iaculis justo finibus non. Suspendisse in fermentum nunc.Nunc pulvinar molestie sem id blandit. Nunc venenatis interdum mollis. </h6>
-                                <div class="testimonial-info d-flex align-items-center justify-content-center">
-                                    <div class="tes-thumbnail">
-                                        <img src="{% static 'img/bg-img/tes-1.jpg' %}" alt="">
-                                    </div>
-                                    <div class="testi-data">
-                                        <p>Michelle Williams</p>
-                                        <span>Client, Los Angeles</span>
-                                    </div>
-                                </div>
-                            </div>
-
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

@@ -77,16 +77,7 @@
                                     <div class="collapse navbar-collapse align-items-start collapse" id="karl-navbar">
                                         <ul class="navbar-nav animated" id="nav">
                                             <li class="nav-item active"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="#" id="karlDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pages</a>
-                                                <div class="dropdown-menu" aria-labelledby="karlDropdown">
-                                                    <a class="dropdown-item" href="index.html">Home</a>
-                                                    <a class="dropdown-item" href="shop.html">Shop</a>
-                                                    <a class="dropdown-item" href="product-details.html">Product Details</a>
-                                                    <a class="dropdown-item" href="cart.html">Cart</a>
-                                                    <a class="dropdown-item" href="checkout.html">Checkout</a>
-                                                </div>
-                                            </li>
+                                            <li class="nav-item"><a class="nav-link" href="{% url 'blog' %}">Blogs</a> </li>
                                             <li class="nav-item"><a class="nav-link" href="{% url 'display-rec' %}"><span class="karl-level align-content-center">hot</span>Recommendations</a></li>
 
                                             <li class="nav-item"><a class="nav-link" href="#">About</a></li>
@@ -95,9 +86,15 @@
                                 </nav>
                             </div>
                             <!-- Help Line -->
+                            {% if not request.user.is_authenticated %}
                             <div class="help-line">
-                                <a href="{% static '#' %}"><i class="fa fa-google">&nbsp;&nbsp;|</i>&nbsp;&nbsp;Login with Google</a>
+                                <a href="{% url 'social:begin' 'google-oauth2' %}"><i class="fa fa-google">&nbsp;&nbsp;|</i>&nbsp;&nbsp;Login with Google</a>
                             </div>
+                            {% else %}
+                                <div class="help-line">
+                                <a href="{% url 'logout' %}"><i class="fa fa-google">&nbsp;&nbsp;|</i>&nbsp;&nbsp;Logout with Google</a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -147,14 +144,21 @@
                             <div class="footer_heading mb-30">
                                 <h6 style="cursor: default">Leave a review</h6>
                             </div>
+                            {% if request.user.is_authenticated %}
                             <div class="subscribtion_form">
-                                <form action="#" method="post">
-                                    <textarea class="mail" placeholder="Your review here" style="resize: vertical"></textarea>
-                                    <input type="email" name="mail" class="mail" placeholder="Your email here">
+                                <form action="{% url 'review' %}" method="post">
+                                    {% csrf_token %}
+                                    <textarea class="mail" name="review-text" placeholder="Your review here" style="resize: vertical"></textarea>
+
                                     <button type="submit" class="submit">Submit</button>
 
                                 </form>
                             </div>
+                            {% else %}
+                            <div class="help-line">
+                                <a href="{% url 'social:begin' 'google-oauth2' %}"><i class="fa fa-google">&nbsp;&nbsp;|</i>&nbsp;&nbsp;Login with Google to post review</a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
