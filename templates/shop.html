@@ -192,8 +192,10 @@
                                             <p>{{ k.image_link.season }} wear</p>
                                             <p>{{ k.image_link.usage }}</p>
                                             <!-- Add to Cart -->
-                                            <form method="post" action="{% url 'wish' k.image_link.id 1 %}">
+                                            <form method="post" action="{% url 'wish' %}">
                                                 {% csrf_token %}
+                                                <input type="hidden" value="{{ k.image_link.id }}" name="pk">
+                                                <input type="hidden" value="True" name="is_add">
                                             <button type="submit" class="add-to-cart-btn">ADD TO WISHLIST</button>
                                                 </form>
                                         </div>

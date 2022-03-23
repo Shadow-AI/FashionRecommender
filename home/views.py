@@ -270,12 +270,17 @@ class Index(View):
         r = Review.objects.order_by('-review_date')[:5]
         ctx = dict()
         ctx['reviews'] = r
+        if not request.user.is_anonymous:
+            ctx['wishlist'] = Wishlist.objects.filter(user=request.user)
         return render(request, 'index.html', context=ctx)
 
 
 class DisplayRecommendation(View):
     def get(self, request):
-        ctx = dict()
+        if not request.user.is_anonymous:
+            ctx = {
+                'wishlist': Wishlist.objects.filter(user=request.user),
+            }
 
         return render(request, 'shop.html', context=ctx)
 
@@ -323,6 +328,7 @@ class DisplayRecommendation(View):
             'gender': gender,
             'season': season,
             'usage': usage,
+            'wishlist': Wishlist.objects.filter(user=request.user),
         }
 
         return render(request, 'shop.html', context=ctx)
@@ -346,28 +352,37 @@ class UploadReview(LoginRequiredMixin, View):
 
 
 class Wish(LoginRequiredMixin, View):
-    def get(self, request, pk, is_add):
+    def get(self, request):
         w = Wishlist.objects.filter(user=request.user)
         ctx = {
             'wishlist': w,
         }
         return render(request, 'cart.html', context=ctx)
 
-    def post(self, request, pk, is_add):
+    def post(self, request):
         # three in one function:
         # 1. if pk then its delete single item
         # 2. if no pk then clear entire user wishlist
         # 3. if pk and is_add then add to wishlist
-        if pk and not is_add == 1:
+        ###########################################
+        # action                |   pk      is_add
+        # delete single item    |   Y       False
+        # delete entire list    |   N       False
+        # add item to list      |   Y       True
+        # -N/A-                 |   Y       True
+        ###########################################
+        pk = request.POST.get('pk')
+        is_add = request.POST.get('is_add')
+        if pk and not is_add:
             w = Wishlist.objects.filter(pk=pk)
             w.delete()
-        elif pk == 0 and is_add == 0:
+        elif not pk and not is_add:
             print('ami')
             w = Wishlist.objects.filter(user=request.user)
             w.delete()
-        elif pk == 0 and is_add == 1:
+        elif pk and is_add:
             i = ImageObject.objects.filter(pk=pk)[0]
             w = Wishlist(user=request.user, item=i)
             w.save()
-        # todo remove url overloading and j use input hidden ig - ye nai chal rah
-        return redirect(reverse('wish', args=[0, 0]))
+
+        return redirect(reverse('wish'))
