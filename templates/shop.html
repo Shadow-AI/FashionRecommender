@@ -36,7 +36,7 @@
                             <p id="imgdisplaysize"></p>
                         </td>
                         <td class="total_price">
-                            <form action="#" method="post" enctype="multipart/form-data">
+                            <form action="{% url 'display-rec' %}" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="file" accept="image/jpeg" name="rec-img" id="image">
                                 <button type="submit" class="btn karl-btn upload">Upload</button>
@@ -50,7 +50,8 @@
             </div>
         </div>
     </div>
-
+    <div class="container">
+<h5 class="text-right" style="font-size: 10px">{{ recommend | length }} results in {{ total_time }} seconds with 80%+ similar results</h5></div>
     {% if recommend %}
 
         <section class="shop_grid_area section_padding_100">
@@ -101,23 +102,7 @@
                                 </div>
                             </div>
 
-                            <div class="widget price mb-50">
-                                <h6 class="widget-title mb-30">Filter by Price</h6>
-                                <div class="widget-desc">
-                                    <div class="slider-range">
-                                        <div data-min="0" data-max="3000" data-unit="$"
-                                             class="slider-range-price ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"
-                                             data-value-min="0" data-value-max="1350" data-label-result="Price:">
-                                            <div class="ui-slider-range ui-widget-header ui-corner-all"></div>
-                                            <span class="ui-slider-handle ui-state-default ui-corner-all"
-                                                  tabindex="0"></span>
-                                            <span class="ui-slider-handle ui-state-default ui-corner-all"
-                                                  tabindex="0"></span>
-                                        </div>
-                                        <div class="range-price">Price: 0 - 1350</div>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <div class="widget color mb-70">
                                 <h6 class="widget-title mb-30">Filter by Color</h6>
@@ -131,26 +116,14 @@
                                 </div>
                             </div>
 
-                            <div class="widget size mb-50">
-                                <h6 class="widget-title mb-30">Filter by Size</h6>
-                                <div class="widget-desc">
-                                    <ul class="d-flex justify-content-between">
-                                        <li><a href="#">XS</a></li>
-                                        <li><a href="#">S</a></li>
-                                        <li><a href="#">M</a></li>
-                                        <li><a href="#">L</a></li>
-                                        <li><a href="#">XL</a></li>
-                                        <li><a href="#">XXL</a></li>
-                                    </ul>
-                                </div>
-                            </div>
+
 
 
                         </div>
                     </div>
 
                     <div class="col-12 col-md-8 col-lg-9">
-                    <h6 style="font-size: 8px">{{ recommend | length }} results in {{ total_time }} seconds with 85%+ similar results</h6>
+
                         <div class="shop_grid_product_area">
                             <div class="row">
 
@@ -196,7 +169,7 @@
                                                 {% csrf_token %}
                                                 <input type="hidden" value="{{ k.image_link.id }}" name="pk">
                                                 <input type="hidden" value="True" name="is_add">
-                                            <button type="submit" class="add-to-cart-btn">ADD TO WISHLIST</button>
+                                            <button type="submit" style="background: none;border: none;cursor: pointer;" class="add-to-cart-btn">ADD TO WISHLIST</button>
                                                 </form>
                                         </div>
                                     </div>

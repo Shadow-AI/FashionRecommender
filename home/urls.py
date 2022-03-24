@@ -9,6 +9,7 @@ urlpatterns =[
     path('recommend/', DisplayRecommendation.as_view(), name='display-rec'),
     path('upload-review/', UploadReview.as_view(), name='review'),
     path('wishlist/', Wish.as_view(), name='wish'),
+    path('about/', About.as_view(), name='about'),
 
 
     path('dev/test/', Test.as_view(), name='test'),

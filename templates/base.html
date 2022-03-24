@@ -83,12 +83,12 @@
                                     <ul class="navbar-nav animated" id="nav">
                                         <li class="nav-item active"><a class="nav-link" href="{% url 'home' %}">Home</a>
                                         </li>
-                                        <li class="nav-item"><a class="nav-link" href="{% url 'blog' %}">Blogs</a></li>
+{#                                        <li class="nav-item"><a class="nav-link" href="{% url 'blog' %}">Blogs</a></li>#}
                                         <li class="nav-item"><a class="nav-link" href="{% url 'display-rec' %}"><span
                                                 class="karl-level align-content-center">hot</span>Recommendations</a>
                                         </li>
 
-                                        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                                        <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
                                     </ul>
                                 </div>
                             </nav>
@@ -134,8 +134,10 @@
                     <div class="single_footer_area">
                         <p style="cursor: default"><b>Quick Links</b></p>
                         <ul class="footer_widget_menu">
-                            <li><a href="#">About</a></li>
-                            <li><a href="#">Blog</a></li>
+                            <li><a href="{% url 'display-rec' %}">Recommender</a></li>
+                            <li><a href="{% url 'about' %}">About</a></li>
+{#                            <li><a href="#">Blog</a></li>#}
+
                         </ul>
                     </div>
                 </div>
