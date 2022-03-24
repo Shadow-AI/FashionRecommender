@@ -116,4 +116,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-FashionRecommender/basemodel.h5
+# add to git - model
+# FashionRecommender/basemodel.h5
