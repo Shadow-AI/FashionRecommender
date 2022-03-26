@@ -1,9 +1,7 @@
-
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.html import escape
-
 
 # Create your models here.
 
@@ -119,12 +117,14 @@ class SimilarityMatrix(models.Model):
         row_name = self.row_item
         return f'{self.column_item} X {self.row_item}'
 
+
 class Wishlist(models.Model):
     item = models.ForeignKey(ImageObject, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.get_full_name()
+
 
 class Review(models.Model):
     review = models.TextField()
@@ -137,9 +137,20 @@ class Review(models.Model):
         else:
             return self.review
 
+
 class UserAvatarSocial(models.Model):
     social_pfp = models.TextField()
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.user.get_full_name()
+
+
+class Metric(models.Model):
+    article = models.CharField(max_length=100)
+    recall = models.FloatField()
+    precision = models.FloatField()
+    f1 = models.FloatField()
+
+    def __str__(self):
+        return f'R:{self.recall} | P:{self.precision} | F:{self.f1}'

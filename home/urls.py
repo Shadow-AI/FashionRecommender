@@ -15,4 +15,5 @@ urlpatterns =[
     path('dev/test/', Test.as_view(), name='test'),
     path('dev/image/', ImageUpload.as_view(), name='img-upload'),
     path('dev/gg/', XYZ.as_view(), name='xyz'),
+    path('dev/metrics/', Metrics.as_view(), name='metrics'),
 ]

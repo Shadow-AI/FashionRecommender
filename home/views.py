@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import glob
@@ -422,3 +423,79 @@ class About(View):
             ctx = dict()
 
         return render(request, 'about.html', context=ctx)
+
+
+class Metrics(LoginRequiredMixin, View):
+    def get(self, request):
+        if request.user.is_superuser:
+            # ONE TIME CODE BELOW TO RUN AND LOAD COUNT FOR CSV FILES
+
+            # img = ImageObject.objects.all()
+            # count=dict()
+            # for i in img:
+            #     count[i.article_category] = count.get(i.article_category, 0) + 1
+            # print(type(count), count)
+            # header = list(set([i.article_category for i in ImageObject.objects.all()]))
+            #
+            # with open(os.path.join(settings.PROJECT_ROOT, 'total_count_metric.csv'), 'w') as csvfile:
+            #     writer = csv.DictWriter(csvfile, fieldnames=header)
+            #     writer.writeheader()
+            #     writer.writerow(count)
+            #
+            # return HttpResponse('ok')
+            r, p, f, m = 0, 0, 0, Metric.objects.all()
+            for i in m:
+                r += i.recall
+                p += i.precision
+                f += i.f1
+
+            if not len(m) == 0:
+                r /= len(m)
+                p /= len(m)
+                f /= len(m)
+
+            ctx = {
+                'recall': r,
+                'precision': p,
+                'f1': f,
+            }
+
+            return render(request, 'img upload.html', context=ctx)
+
+        else:
+            return redirect(reverse('home'))
+
+    def post(self, request):
+        img = request.FILES.get('img')
+        cat = request.POST.get('category')
+        fv = get_feature_vector(PIL.Image.open(img))
+        t = list()
+        for i in FeatureVector.objects.all():
+            sim = calculate_similarity(
+                fv,
+                np.frombuffer(i.vector, dtype=ARRAY_DATA_TYPE).reshape(ARRAY_SHAPE)
+            )
+            if sim >= .8:
+                t.append(i)
+
+        count_dict = list(set([i.article_category for i in ImageObject.objects.all()]))
+        df = pd.read_csv('total_count_metric.csv')
+
+        c = 0
+        for i in t:
+            if i.image_link.article_category.lower() == cat.lower():
+                c += 1
+
+        r = c / df[cat]
+        p = c / len(t)
+        f = 2 * r * p / (r + p)
+
+        m = Metric(
+            article=cat,
+            recall=r,
+            precision=p,
+            f1=f,
+        )
+        m.save()
+
+        return redirect(reverse('metrics'))

@@ -5,67 +5,20 @@
     <title>Title</title>
 </head>
 <body>
-<form enctype="multipart/form-data" action="{% url 'img-upload' %}" method="post">
+<form enctype="multipart/form-data" action="{% url 'metrics' %}" method="post">
     {% csrf_token %}
-    <input type="file" name="user-img">
-    <label>
-        <input type="text" name="user-colour" placeholder="Colour">
-    </label>
-    <label>
-        <select name="user-gender">
-            {% for i,j in GENDER %}
-            <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <select name="user-agegrp">
-            {% for i, j in AGE_GROUP %}
-                <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <select name="user-season">
-            {% for i, j in SEASONS %}
-                <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <select name="user-usage">
-            {% for i, j in USAGE %}
-                <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>
-        <input type="text" name="user-brand" placeholder="Brand">
-    </label>
+    <input type="file" name="img">
+    <input type="text" name="category">
     <button type="submit">Submit</button>
 </form>
 
-{% if recommend %}
-    {% for i in recommend %}
-        <div>
-        {% if not i.image_link.is_custom %}
-            <img src="{{ i.image_link.image_buy_link }}" height="500px">
-            <img src="{{ i.image_link.image_link_back }}" height="500px">
-            <img src="{{ i.image_link.image_link_front }}" height="500px">
-            <img src="{{ i.image_link.image_link_left }}" height="500px">
-            <img src="{{ i.image_link.image_link_right }}" height="500px">
-            {{ i.image_link.gender | first }}<br>
-            {{ i.image_link.age_group }}<br>
-            {{ i.image_link.brand }}<br>
-            {{ i.image_link.usage }}<br>
-            {{ i.image_link.colour }}<br>
-            {{ i.image_link.main_category }}<br>
-            {{ i.image_link.sub_category }}<br>
-            {{ i.image_link.article_category }}<br>
-        {% endif %}
-        </div>
-    {% endfor %}
-{% endif %}
+<div>
+    <p>
+        Recall: {{ recall }}<br>
+        Precision: {{ precision }}<br>
+        F1 score: {{ f1 }}<br>
+    </p>
+</div>
 
 
 </body>
