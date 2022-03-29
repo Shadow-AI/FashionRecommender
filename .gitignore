@@ -118,3 +118,5 @@ dmypy.json
 .pyre/
 # add to git - model
 # FashionRecommender/basemodel.h5
+db.sqlite3
+db.sqlite3
