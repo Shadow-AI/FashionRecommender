@@ -311,6 +311,8 @@ class DisplayRecommendation(View):
     def post(self, request):
         start = time.time()
         img = request.FILES.get('rec-img')
+        if not img:
+            return redirect(reverse('display-rec'))
         fv = get_feature_vector(PIL.Image.open(img))
         best_fits = list()
         usage = set()
