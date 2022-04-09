@@ -120,3 +120,4 @@ dmypy.json
 # FashionRecommender/basemodel.h5
 db.sqlite3
 db.sqlite3
+db.sqlite3
