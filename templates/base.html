@@ -83,7 +83,9 @@
                                     <ul class="navbar-nav animated" id="nav">
                                         <li class="nav-item active"><a class="nav-link" href="{% url 'home' %}">Home</a>
                                         </li>
-{#                                        <li class="nav-item"><a class="nav-link" href="{% url 'blog' %}">Blogs</a></li>#}
+                                        {% if request.user.is_authenticated %}
+                                        <li class="nav-item"><a class="nav-link" href="{% url 'history' %}">History</a></li>
+                                        {% endif %}
                                         <li class="nav-item"><a class="nav-link" href="{% url 'display-rec' %}"><span
                                                 class="karl-level align-content-center">hot</span>Recommendations</a>
                                         </li>
@@ -100,10 +102,13 @@
                                         class="fa fa-google">&nbsp;&nbsp;|</i>&nbsp;&nbsp;Login with Google</a>
                             </div>
                         {% else %}
+
                             <div class="help-line">
                                 <a href="{% url 'logout' %}"><i class="fa fa-google">&nbsp;&nbsp;|</i>&nbsp;&nbsp;Logout
                                     with Google</a>
                             </div>
+
+
                         {% endif %}
                     </div>
                 </div>

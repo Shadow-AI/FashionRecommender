@@ -10,6 +10,7 @@ urlpatterns =[
     path('upload-review/', UploadReview.as_view(), name='review'),
     path('wishlist/', Wish.as_view(), name='wish'),
     path('about/', About.as_view(), name='about'),
+    path('history/', History.as_view(), name='history'),
 
 
     path('dev/test/', Test.as_view(), name='test'),

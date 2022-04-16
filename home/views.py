@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from PIL import Image
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 # Create your views here.
 from django.urls import reverse
@@ -343,6 +343,13 @@ class DisplayRecommendation(View):
                     t.append(i.image_link.image_link_right)
                 best_fits[i] = t
 
+                if not request.user.is_anonymous:
+                    RecHistory(
+                        user=request.user,
+                        image=i.image_link,
+                    ).save()
+
+
         # todo send few top results only not all
         # best fits is a dict with key as the actual item(fv) and the value as the images associated
 
@@ -357,6 +364,7 @@ class DisplayRecommendation(View):
         }
         if not request.user.is_anonymous:
             ctx['wishlist'] = Wishlist.objects.filter(user=request.user)
+
 
         return render(request, 'shop.html', context=ctx)
 
@@ -501,3 +509,48 @@ class Metrics(LoginRequiredMixin, View):
         m.save()
 
         return redirect(reverse('metrics'))
+
+
+class History(LoginRequiredMixin, View):
+    def get(self, request):
+        ctx = dict()
+        if not request.user.is_anonymous:
+            best_fits = dict()
+            colour, main_category, gender, season, usage, article_category = set(), set(), set(), set(), set(), set()
+            for i in RecHistory.objects.filter(user=request.user):
+                colour.add(i.image.colour)
+                main_category.add(i.image.main_category)
+                gender.add(i.image.gender)
+                season.add(i.image.season)
+                usage.add(i.image.usage)
+                article_category.add(i.image.article_category)
+                t = list()
+                if i.image.image_link_front:
+                    t.append(i.image.image_link_front)
+                if i.image.image_link_back:
+                    t.append(i.image.image_link_back)
+                if i.image.image_link_left:
+                    t.append(i.image.image_link_left)
+                if i.image.image_link_right:
+                    t.append(i.image.image_link_right)
+                best_fits[i] = t
+            ctx = {
+                'recommend': best_fits,
+                'colour': colour,
+                'main_category': main_category,
+                'gender': gender,
+                'season': season,
+                'usage': usage,
+                'article_category': article_category,
+            }
+
+        return render(request, 'history.html', context=ctx)
+
+    def post(self, request):
+        print('hi')
+
+        rh = RecHistory.objects.filter(pk=request.POST.get('pk'))
+        print(rh)
+        rh.delete()
+        return redirect(reverse('history'))
+

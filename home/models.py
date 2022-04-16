@@ -154,3 +154,11 @@ class Metric(models.Model):
 
     def __str__(self):
         return f'R:{self.recall} | P:{self.precision} | F:{self.f1}'
+
+
+class RecHistory(models.Model):
+    image = models.ForeignKey(ImageObject, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.user}'

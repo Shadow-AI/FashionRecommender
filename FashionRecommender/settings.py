@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'home',
     'blog',
     'social_django',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -162,3 +163,8 @@ MEDIA_URL = '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+}
